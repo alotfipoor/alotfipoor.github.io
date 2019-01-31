@@ -1,0 +1,296 @@
+<!doctype html><html lang="en">
+<!-- Mirrored from thadeusb.com/weblog/2009/03/25/pygame_event_input_wrapper/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 31 Jan 2019 17:05:58 GMT -->
+<head><title>Pygame Event Input Wrapper - ThadeusB</title><meta charset="utf-8"><meta name=author content="Thadeus Burgess" /><meta name=description content="The goal of this class is to make input easier, and globally accessible to the entire game for each loop.  This also keeps track of whether an input has just been pressed, is being held down, and when it is released. Usage  Wrapper for the pygame input m"/><meta name=keywords content="python, ai, robots, game_development, input, pygame, python, event, wrapper"/><meta name=robots content="index, follow" /><link rel="shortcut icon" href="https://thadeusb.com/static/favicon.ico" type="image/x-icon" /><link href="http://fonts.googleapis.com/css?family=Rubik|Aclonica|Averia+Libre" rel="stylesheet"><link href="../../../../../../use.fontawesome.com/aaf60b2b39.css" rel="stylesheet"> <link rel="stylesheet" type="text/css" href="https://thadeusb.com/static/gen/app.css?5d06cfbf"><link rel="stylesheet" type="text/css" media="print" href="https://thadeusb.com/static/gen/print.css?39bef004"><meta name="viewport" content="width=device-width" /><meta name="twitter:card" content="summary"> <meta name="twitter:site" content="@thadeusb"> <meta name="twitter:creator" content="@thadeusb"> <meta name="twitter:title" content="Pygame Event Input Wrapper"> <meta name="twitter:description" content="The goal of this class is to make input easier, and globally accessible to the entire game for each loop.  This also keeps track of whether an input has just been pressed, is being held down, and when it is released. Usage  Wrapper for the pygame input m"> <meta name="twitter:image" content="../../../../../index.html"></head><body class="weblog pygame_event_input_wrapper  "><div class="container"><header class="header"><h1>Hi, I'm <a href="../../../../../index.html">Thadeus<span>B</span></a>.</h1><small>I code stuff. I raise bees. I game.</small></header><main class="content"><article lang="en" class="weblog" itemscope itemtype="//schema.org/BlogPosting"><link itemprop="url" href="index.html"><header><div id="article-title"></div><h2><a itemprop="name" href="index.html">Pygame Event Input Wrapper</a></h2></header><section><p>The goal of this class is to make input easier, and globally accessible to the entire game for each loop.</p><p>This also keeps track of whether an input has just been pressed, is being held down, and when it is released. Usage</p><p>Wrapper for the pygame input module</p><p>At the beginning of your loop where you would normally handle input put:</p><p>Input.add_events(pygame.event.get())</p><p>At the end of your loop you must add this so that events are transitioned correctly This makes sure events that are in a DOWN state get moved to a MOTION state (meaning they are being held down) and events in a UP state are removed from the dictionary.</p><p>Input.update()</p><p>Usage: To check a key use the pygame.locals. Such as K_a, K_d, K_ESC, etc. To check a mouse event use "MB1", "MB2", "MB3", etc. To check exit event use "QUIT" Support for up to 10 mouse buttons. Uses: Input[KEY] - Returns the pygame.event for KEY Input.isset(KEY) - True if there is an event for KEY Input.get(KEY) - Retrieve tuple of (pygame.event, status) Input.event(KEY) - Retrieve pygame event of key Input.stat(KEY) - Retrieve status value of key Input.down(KEY) - True if the key is a down event Input.motion(KEY) - True if the key is being held down Input.up(KEY) - True if the key is an up event</p><p>Download: Version 1</p><p><a href="http://hg.thadeusb.com/public/.r/Games/MyRTS/file/a8b5ba61bfd8/src/tengine/input.py">Input Wrapper (input.py)</a> <a href="http://blog.thadeusb.com/wp-content/uploads/2009/03/example.py">Input Wrapper Example (example.py) [brokenlink]</a></p><p>Alternatively you can get the latest version from my repository located at </p><p>hg clone http://hg.thadeusb.com/Games/MyRTS/</p><p>I will also try to keep the version located on the pygame cookbook updated to the latest version as well</p><p><a href="http://www.pygame.org/wiki/InputWrapper?action=view">http://www.pygame.org/wiki/InputWrapper?action=view</a></p><div class="codehilite"><pre><span></span><span class="c1">#Assume pygame is set up correctly</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="c1"># yay for clocks.</span>
+        <span class="n">time_passed</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">MAX_FPS</span><span class="p">)</span>
+        <span class="c1"># Update our mouse position and 3 button state</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">update_mouse</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">(),</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span>
+        <span class="c1"># Add all events from the event queue to the input module</span>
+        <span class="c1"># for this loop cycle.</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">add_events</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+        <span class="c1"># Hopefully python&#39;s psuedocode nature explains what is going</span>
+        <span class="c1"># on here.</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">isset</span><span class="p">(</span><span class="n">K_q</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;Q IS SET&quot;</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">K_w</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;W WAS JUST PRESSED&quot;</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">motion</span><span class="p">(</span><span class="n">K_w</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;W IS BEING HELD DOWN&quot;</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">K_w</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;W WAS JUST RELEASED&quot;</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="s2">&quot;MB1&quot;</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;Mouse Button One Pressed&quot;</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">motion</span><span class="p">(</span><span class="s2">&quot;MB1&quot;</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;Mouse Button One Held Down&quot;</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="s2">&quot;MB1&quot;</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;Mouse Button One Released&quot;</span>
+        <span class="c1"># These will only be printed if the space bar</span>
+        <span class="c1"># is currently in a event state.</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">isset</span><span class="p">(</span><span class="n">K_SPACE</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s2">&quot;Event for MB2&quot;</span>
+            <span class="k">print</span> <span class="s2">&quot;Input[&#39;MB2&#39;]: &quot;</span><span class="p">,</span> <span class="n">Input</span><span class="p">[</span><span class="s2">&quot;MB2&quot;</span><span class="p">]</span>
+            <span class="k">print</span> <span class="s2">&quot;Input.get(&#39;MB2&#39;): &quot;</span><span class="p">,</span> <span class="n">Input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MB2&quot;</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s2">&quot;Input.event(&#39;MB2&#39;): &quot;</span><span class="p">,</span> <span class="n">Input</span><span class="o">.</span><span class="n">event</span><span class="p">(</span><span class="s2">&quot;MB2&quot;</span><span class="p">)</span>
+            <span class="k">print</span> <span class="s2">&quot;Input.stat(&#39;MB2&#39;): &quot;</span><span class="p">,</span> <span class="n">Input</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="s2">&quot;MB2&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">isset</span><span class="p">(</span><span class="n">K_END</span><span class="p">):</span>
+            <span class="nb">exit</span><span class="p">()</span>
+        <span class="c1"># To handle pygame.QUIT events. Such as user pressing X or Alt-F4</span>
+        <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">isset</span><span class="p">(</span><span class="s2">&quot;QUIT&quot;</span><span class="p">):</span>
+            <span class="nb">exit</span><span class="p">()</span>
+        <span class="c1"># Update game objects and render them to the screen</span>
+        <span class="n">world</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">time_passed</span><span class="p">)</span>
+        <span class="n">world</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+        <span class="c1"># This must be called at the end of each game cycle</span>
+        <span class="c1"># This takes any event that was triggered this cycle as a</span>
+        <span class="c1"># KEYDOWN or MOUSEBUTTONDOWN and moves them into a MOTION</span>
+        <span class="c1"># state (meaning they are being held down).</span>
+        <span class="c1"># This also takes any events received as a UP event and</span>
+        <span class="c1"># removes them from the dictionary.</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="c1"># Display our new screen.</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+</pre></div><p>input_wrapper.py</p><div class="codehilite"><pre><span></span><span class="c1">#</span>
+<span class="c1"># Wrapper for the pygame input module</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (C) 2009 Thadeus Burgess</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see /www.gnu.org/licenses/&gt;</span>
+
+<span class="n">__author__</span><span class="o">=</span><span class="s2">&quot;Thadeus Burgess &lt;thadeusb@thadeusb.com&gt;&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span><span class="s2">&quot;$Mar 23, 2009 12:20:34 AM$&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pygame</span>
+<span class="kn">from</span> <span class="nn">pygame.locals</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="k">class</span> <span class="nc">Input</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for the pygame input module</span>
+
+<span class="sd">    To check a key use the pygame.locals. Such as K_a, K_d, K_ESC, etc.</span>
+<span class="sd">    To check a mouse event use &quot;MB1&quot;, &quot;MB2&quot;, &quot;MB3&quot;, etc.</span>
+<span class="sd">    To check exit event use &quot;QUIT&quot;</span>
+
+<span class="sd">    Support for up to 10 mouse buttons.</span>
+
+<span class="sd">    Uses:</span>
+
+<span class="sd">    Input[KEY] - Returns the pygame.event for KEY</span>
+<span class="sd">    Input.isset(KEY) - True if there is an event for KEY</span>
+<span class="sd">    Input.get(KEY) - Retrieve tuple of (pygame.event, status)</span>
+<span class="sd">    Input.event(KEY) - Retrieve pygame event of key</span>
+<span class="sd">    Input.stat(KEY) - Retrieve status value of key</span>
+<span class="sd">    Input.down(KEY) - True if the key is a down event</span>
+<span class="sd">    Input.motion(KEY) - True if the key is being held down</span>
+<span class="sd">    Input.up(KEY) - True if the key is an up event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">DOWN</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">MOTION</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">UP</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">mice</span> <span class="o">=</span> <span class="p">(</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">,</span> <span class="n">MOUSEBUTTONUP</span><span class="p">,</span> <span class="n">MOUSEMOTION</span><span class="p">)</span>
+    <span class="n">butt</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;MB1&quot;</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;MB2&quot;</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;MB3&quot;</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;MB4&quot;</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;MB5&quot;</span><span class="p">,</span>
+            <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;MB6&quot;</span><span class="p">,</span>
+            <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;MB7&quot;</span><span class="p">,</span>
+            <span class="mi">8</span><span class="p">:</span> <span class="s2">&quot;MB8&quot;</span><span class="p">,</span>
+            <span class="mi">9</span><span class="p">:</span> <span class="s2">&quot;MB9&quot;</span><span class="p">,</span>
+            <span class="mi">10</span><span class="p">:</span> <span class="s2">&quot;MB10&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">button_state</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">mouse_pos</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">__metaclass__</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Get the event.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="k">return</span> <span class="n">event</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_event</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a single pygame.event to the dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="n">event</span><span class="p">,</span> <span class="n">Input</span><span class="o">.</span><span class="n">DOWN</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYUP</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">:</span> <span class="p">[</span><span class="n">event</span><span class="p">,</span> <span class="n">Input</span><span class="o">.</span><span class="n">UP</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">Input</span><span class="o">.</span><span class="n">butt</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">]:</span> <span class="p">[</span><span class="n">event</span><span class="p">,</span><span class="n">Input</span><span class="o">.</span><span class="n">DOWN</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">MOUSEBUTTONUP</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">Input</span><span class="o">.</span><span class="n">butt</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">]:</span> <span class="p">[</span><span class="n">event</span><span class="p">,</span><span class="n">Input</span><span class="o">.</span><span class="n">UP</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">MOUSEMOTION</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">MOUSEMOTION</span><span class="p">:</span> <span class="p">[</span><span class="n">event</span><span class="p">,</span> <span class="n">Input</span><span class="o">.</span><span class="n">MOTION</span><span class="p">]})</span>
+        <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="err">”</span><span class="n">QUIT</span><span class="err">”</span><span class="p">:</span> <span class="p">[</span><span class="n">event</span><span class="p">,</span> <span class="bp">True</span><span class="p">]})</span> <span class="c1"># Fix by Gautham(comment on the blog)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_events</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">events</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a list of pygame.events to the dictionary</span>
+<span class="sd">        Expects a pygame.event.get() as the argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">add_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list containing the pygame.event and a status code</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">event</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the pygame.event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">event</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">event</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">stat</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the status code</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">event</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">event</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">status</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">isset</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Is there an event for name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># If this does not throw an exception</span>
+            <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="c1"># We know the item exists</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="c1"># Else it does not.</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="n">event</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">down</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Is the event in a down state.</span>
+<span class="sd">        Did the user press the key or button now</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="n">Input</span><span class="o">.</span><span class="n">DOWN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">motion</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the key is being held down.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="n">Input</span><span class="o">.</span><span class="n">MOTION</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">up</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Has the key just been released</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stat</span> <span class="o">==</span> <span class="n">Input</span><span class="o">.</span><span class="n">UP</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">update_mouse</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">buttons</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the mouse postion and the three main buttons state.</span>
+<span class="sd">        pygame.mouse.get_pos() and pygame.mouse.get_pressed()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">mouse_pos</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="n">Input</span><span class="o">.</span><span class="n">button_state</span> <span class="o">=</span> <span class="n">buttons</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the list to reflect the end of a game cycle.</span>
+<span class="sd">        This way events that are in a down state get moved to</span>
+<span class="sd">        a motion state (being held down) and events that are in</span>
+<span class="sd">        a up state get removed from the list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYDOWN</span><span class="p">:</span>
+                <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">MOTION</span>
+            <span class="k">elif</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">KEYUP</span><span class="p">:</span>
+                <span class="n">flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="o">==</span> <span class="n">MOUSEMOTION</span><span class="p">:</span>
+                <span class="n">flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">Input</span><span class="o">.</span><span class="n">butt</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">i</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;MB&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">down</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                        <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Input</span><span class="o">.</span><span class="n">MOTION</span>
+                    <span class="k">if</span> <span class="n">Input</span><span class="o">.</span><span class="n">up</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                        <span class="n">flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">flag</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">tostring</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the list of events.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#for i in Input.events:</span>
+            <span class="c1">#print Input.events[i]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">Input</span><span class="o">.</span><span class="n">events</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">print</span> <span class="n">Input</span><span class="o">.</span><span class="n">events</span>
+</pre></div></section><hr><aside><p><span class="article-author" itemprop="author" itemscope itemtype="//schema.org/Person"><span itemprop="name">Thadeus Burgess</span></span><time datetime="2009-03-25" itemprop="datePublished">2009-03-25</time>— in <a href="../../../../index.html" itemprop="genre">Weblog</a></p></aside><nav><a class="prev" href="../subversion_to_mercurial_conversion_completed/index.html">Subversion to Mercurial Conversion Completed.</a> |<a class="next" href="../../15/svn_vs_hg_vs_git_vs_bzr/index.html">Version Control Systems Compared - Subversion vs Mercurial vs Git vs Bazaar</a><div class="related"><h6>Related Entries <small>(in order of similarity)</small></h6><ul><li><a href="../../../04/15/pygame_font_and_py2exe/index.html">pygame font and py2exe</a></li><li><a href="../../09/rotate_sprite_towards_point/index.html">Rotate Sprite Towards Point</a></li><li><a href="../../../../2012/10/18/safe_calculator/index.html">Safe Calculator In Python</a></li><li><a href="../../../../2011/08/17/manage_python_virtualenv/index.html">Seemless Python VirtualEnv Integration</a></li><li><a href="../../../../2010/10/10/python_scale_hex_color/index.html">Scale a hex color in Python</a></li><li><a href="../../../../2010/09/03/sqlalchemy_record_instance_item_access/index.html">Getting fresh with SQLAlchemy</a></li></ul></div></nav></article></main><nav class="sidebar"><ul><li class="home"><a href="../../../../../index.html">Home</a></li><li class="weblog active"><a href="../../../../index.html">Weblog</a></li><li class="recipes"><a href="../../../../../recipes/index.html">Recipes</a></li><li class="projects"><a href="../../../../../projects/index.html">Projects</a></li><li class="contact"><a href="../../../../../pages/contact/index.html">Contact</a></li></ul></nav><footer class="footer"><p>&copy; 2017 Thadeus Burgess— <a href="mailto:thadeusb@thadeusb.com" title="E-Mail"><i class="fa fa-fw fa-envelope"></i></a>— <a href="https://github.com/thadeusb" title="GitHub"><i class="fa fa-fw fa-github"></i></a>— <a href="https://www.linkedin.com/in/thadeusb/" title="LinkedIn"><i class="fa fa-fw fa-linkedin"></i></a></p></footer></div><div id="gear-container"><div id="gear"></div></div><script src="../../../../../../ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> <script type="text/javascript" src="https://thadeusb.com/static/gen/app.js?35034e78"></script><!--  GOOGLE ANALYTICS --> <script>var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-7293044-1']);_gaq.push(['_trackPageview']);(function() {  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);})();</script></body>
+<!-- Mirrored from thadeusb.com/weblog/2009/03/25/pygame_event_input_wrapper/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 31 Jan 2019 17:05:58 GMT -->
+</html>

@@ -1,0 +1,46 @@
+<!doctype html><html lang="en">
+<!-- Mirrored from thadeusb.com/weblog/2010/04/18/let_the_web_server_stream_your_files_not_responsedownload/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 31 Jan 2019 17:05:43 GMT -->
+<head><title>Let the web server stream your files, not response.download! - ThadeusB</title><meta charset="utf-8"><meta name=author content="Thadeus Burgess" /><meta name=description content="If your web server supports the X-Sendfile header, you are able to stream your uploaded files from the web server, instead of through web2py. Here is a snippet from [Cherokee Website][1] explaining the X-Sendfile header. &gt; X-Sendfile is a special, non"/><meta name=keywords content="python, ai, robots, web2py, stream, cherokee, xsendfile, let, web, server, files, response, download"/><meta name=robots content="index, follow" /><link rel="shortcut icon" href="https://thadeusb.com/static/favicon.ico" type="image/x-icon" /><link href="http://fonts.googleapis.com/css?family=Rubik|Aclonica|Averia+Libre" rel="stylesheet"><link href="../../../../../../use.fontawesome.com/aaf60b2b39.css" rel="stylesheet"> <link rel="stylesheet" type="text/css" href="https://thadeusb.com/static/gen/app.css?5d06cfbf"><link rel="stylesheet" type="text/css" media="print" href="https://thadeusb.com/static/gen/print.css?39bef004"><meta name="viewport" content="width=device-width" /><meta name="twitter:card" content="summary"> <meta name="twitter:site" content="@thadeusb"> <meta name="twitter:creator" content="@thadeusb"> <meta name="twitter:title" content="Let the web server stream your files, not response.download!"> <meta name="twitter:description" content="If your web server supports the X-Sendfile header, you are able to stream your uploaded files from the web server, instead of through web2py. Here is a snippet from [Cherokee Website][1] explaining the X-Sendfile header. &gt; X-Sendfile is a special, non"> <meta name="twitter:image" content="../../../../../index.html"></head><body class="weblog let_the_web_server_stream_your_files_not_responsedownload  "><div class="container"><header class="header"><h1>Hi, I'm <a href="../../../../../index.html">Thadeus<span>B</span></a>.</h1><small>I code stuff. I raise bees. I game.</small></header><main class="content"><article lang="en" class="weblog" itemscope itemtype="//schema.org/BlogPosting"><link itemprop="url" href="index.html"><header><div id="article-title"></div><h2><a itemprop="name" href="index.html">Let the web server stream your files, not response.download!</a></h2></header><section><p>If your web server supports the X-Sendfile header, you are able to stream your uploaded files from the web server, instead of through web2py. Here is a snippet from <a href="http://www.cherokee-project.com/doc/other_goodies.html">Cherokee Website</a> explaining the X-Sendfile header.</p><blockquote>
+<p>X-Sendfile is a special, non-standard
+HTTP header that has been supported by
+Cherokee for a while. At first you
+might think it is no big deal, but
+think again.It can be enabled in any
+CGI, FastCGI or SCGI backend.
+Basically its job is to instruct the
+web server to ignore the content of
+the response and replace it by
+whatever is specified in the header.
+The main advantage of this is that it
+will be Cherokee the one serving the
+file, making use of all its
+optimizations. It is useful for
+processing script-output of e.g. php,
+perl, ruby or any cgi.</p>
+<p>This is particularly useful because it
+hands the load to Cherokee, all the
+response headers from the backend are
+forwarded, the whole application uses
+a lot less resources and performs
+several times faster not having to
+worry about a task best suited for a
+web server.</p>
+<p>You retain the ability to check for
+special privileges or dynamically
+deciding anything contemplated by your
+backend’s logic, you speed up things a
+lot while having more resources freed,
+and you can even specify the delivery
+of files outside of the web server’s
+document root path. Of course, this is
+to be done solely in controlled
+environments. In short, it offers a
+huge performance gain at absolutely no
+cost.</p>
+</blockquote><p>Now lets implement this in web2py. Using the following database table</p><div class="codehilite"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">define_table</span><span class="p">(</span><span class="s1">&#39;document&#39;</span><span class="p">,</span> <span class="n">Field</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;upload&#39;</span><span class="p">))</span>
+</pre></div><p>Replace your download function with the following.</p><div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">download</span><span class="p">():</span>
+    <span class="n">document</span> <span class="o">=</span> <span class="n">db</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">select</span><span class="p">()</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;X-Sendfile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">folder</span><span class="p">,</span> <span class="s1">&#39;uploads&#39;</span><span class="p">,</span> <span class="n">document</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+</pre></div></section><hr><aside><p><span class="article-author" itemprop="author" itemscope itemtype="//schema.org/Person"><span itemprop="name">Thadeus Burgess</span></span><time datetime="2010-04-18" itemprop="datePublished">2010-04-18</time>— in <a href="../../../../index.html" itemprop="genre">Weblog</a></p></aside><nav><a class="prev" href="../../21/compile_web2py_apps_externally/index.html">Compile web2py apps externally</a> |<a class="next" href="../../../03/19/increase_productivity_by_using_parameterized_queries_with_web2py/index.html">Increase Productivity By Using Parameterized Queries with web2py</a><div class="related"><h6>Related Entries <small>(in order of similarity)</small></h6><ul><li><a href="../../../01/17/download_of_a_filelike_python_object_in_web2py/index.html">Download of a file-like python object in web2py</a></li><li><a href="../../../10/19/backup_files_safely_on_ubuntu_linux/index.html">Backup files safely on Ubuntu linux</a></li><li><a href="../../28/web2py_utilities/index.html">Web2py Utilities</a></li><li><a href="../../21/using_fixtures_in_web2py/index.html">Using fixtures in web2py</a></li><li><a href="../../21/compile_web2py_apps_externally/index.html">Compile web2py apps externally</a></li><li><a href="../../../03/19/increase_productivity_by_using_parameterized_queries_with_web2py/index.html">Increase Productivity By Using Parameterized Queries with web2py</a></li></ul></div></nav></article></main><nav class="sidebar"><ul><li class="home"><a href="../../../../../index.html">Home</a></li><li class="weblog active"><a href="../../../../index.html">Weblog</a></li><li class="recipes"><a href="../../../../../recipes/index.html">Recipes</a></li><li class="projects"><a href="../../../../../projects/index.html">Projects</a></li><li class="contact"><a href="../../../../../pages/contact/index.html">Contact</a></li></ul></nav><footer class="footer"><p>&copy; 2017 Thadeus Burgess— <a href="mailto:thadeusb@thadeusb.com" title="E-Mail"><i class="fa fa-fw fa-envelope"></i></a>— <a href="https://github.com/thadeusb" title="GitHub"><i class="fa fa-fw fa-github"></i></a>— <a href="https://www.linkedin.com/in/thadeusb/" title="LinkedIn"><i class="fa fa-fw fa-linkedin"></i></a></p></footer></div><div id="gear-container"><div id="gear"></div></div><script src="../../../../../../ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script> <script type="text/javascript" src="https://thadeusb.com/static/gen/app.js?35034e78"></script><!--  GOOGLE ANALYTICS --> <script>var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-7293044-1']);_gaq.push(['_trackPageview']);(function() {  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);})();</script></body>
+<!-- Mirrored from thadeusb.com/weblog/2010/04/18/let_the_web_server_stream_your_files_not_responsedownload/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 31 Jan 2019 17:05:43 GMT -->
+</html>
